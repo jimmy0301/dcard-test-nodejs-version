@@ -1,0 +1,63 @@
+version: '3'
+services:
+  mysql:
+    container_name: 'mysql'
+    image: mysql/mysql-server:5.7
+    restart: always
+    environment:
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_ROOT_PASSWORD: "test"
+      MYSQL_DATABASE: "dcardDb"
+    ports:
+      - 3307:3307
+        #volumes:
+        #- ./sqls:/docker-entrypoint-initdb.d
+# if you want to save pg data
+#      - sqldata:/var/lib/mysql
+  redis:
+    container_name: 'redis'
+    image: redis
+    command: redis-server --requirepass root
+    restart: always
+# if you want to save redis data
+#    volumes:
+#      - ./redis-data:/data
+    ports:
+      - "6380:6379"
+  redis-client:
+    container_name: 'redis-client'
+    image: erikdubbelboer/phpredisadmin
+    environment:
+      - ADMIN_USER=admin
+      - ADMIN_PASS=admin
+      - REDIS_1_HOST=redis
+      - REDIS_1_PORT=6379
+      - REDIS_1_AUTH=root
+    restart: always
+    depends_on:
+      - redis
+    ports:
+      - "8081:80"
+  backend:
+    image: 'dcard--demo'
+    container_name: 'dcard-demo'
+    build: ./
+    # replace original .env file defined value
+    environment:
+      DB_HOST: postgres
+      LOG_LEVEL: debug
+      HTTP_PORT: 8080
+      TIME_ZONE: 'Asia/Taipei'
+      REDIS_SHARED_HOST: redis
+      REDIS_SHARED_PORT: 6379
+      REDIS_SHARED_DB: 15
+      REDIS_SHARED_PASS: root
+      REDIS_SHARED_TLS_ENABLED: "false"
+      REDIS_SHARED_PREFIX_SESSION: "drawCard:"
+    restart: always
+    ports:
+    - "8080:8080"
+    depends_on:
+      - mysql
+      - redis

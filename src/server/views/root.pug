@@ -1,0 +1,22 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    if (version)
+      meta(name="version" content=version)
+    meta(name="google" content="notranslate")
+    meta(name="format-detection" content="telephone=no")
+
+    title Gogoro Web Application
+
+    style!= globalStyles
+    != styles
+  body
+    main#app!= markup
+
+    script.
+      window.__PRELOADED_STATE__ = !{preloadedState};
+    script(type="text/javascript" src="app.dll.js")
+    script(type="text/javascript" src="app.js")

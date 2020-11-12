@@ -1,0 +1,111 @@
+doctype html
+html(lang='en')
+  head
+    title bill
+  body
+    div(style='float:left; margin-right:40px; margin-left: 20px;')
+      p #{zipcode}
+      p #{address}
+      p
+        | #{name} 鈞啟
+    div(style='float:left; margin-left: 100px; font-size:12px;')
+      p #{year1}年#{month}月換電馳服務合併帳單
+      p 計費週期: #{year1}/#{month1}/#{day1}~#{year2}/#{month2}/#{day2}
+      p 帳單序號: #{billSN}
+    div(style='float:left; margin-right:40px; margin-left: 20px;')
+      p #{address}
+      p
+        | #{company_name}
+    div(style='float:left; margin-top:40px; margin-left: 20px; font-size:12px; text-align: center;')
+      table(border='1')
+        tbody
+          tr
+            th
+            th 本期應繳金額
+            th 總行駛里程(KM)
+            th 電池使用(AH)
+            th 繳款截止日
+            th 繳款方式
+          tr
+            td 換電馳服務月租費
+            td #{totalPlanPrice}
+            td #{totalDistance}
+            td #{totalPC}
+            td #{dueDate}
+            td #{payType}
+          tr
+            td 性能提升
+            td #{totalAddonPrice}
+            td
+            td
+            td
+            td
+          tr
+            td 計量費用
+            td #{overUnitPrice}
+            td
+            td
+            td
+            td
+          tr
+            td 折扣
+            td #{promotionPrice}
+            td
+            td
+            td
+            td
+          tr
+            td 其他調整費用
+            td #{otherChargePrice}
+            td
+            td
+            td
+            td
+          tr
+            td 合計
+            td #{totalPrice}
+            td
+            td
+            td
+            td
+    div(style='float:left; margin-top:40px; margin-left: 20px; font-size:12px; text-align: center;')
+      table(border='1')
+        tbody
+          tr
+            th 車牌號碼
+            th 資費方案
+            th 換電馳方案月租費
+            th 額外里程費
+            th 行駛里程(KM)
+            th 電池使用(AH)
+        //- var scooterList = !{scooterList};
+        for scooter in scooterList
+          tr
+            td= scooter.plate_number
+            td= scooter.plan_name
+            td= scooter.scooter_plan_price
+            td= scooter.scooter_usage_price
+            td= scooter.scooter_distance
+            td= scooter.scooter_power_consumption
+    div(style='float:left; margin-top:40px; margin-left: 20px; font-size:12px; text-align: center;')
+      table(border='1')
+        tbody
+          tr
+            th 車牌號碼
+            th 換電日期
+            th 換電地點
+            th 行駛里程(KM)
+            th 電池使用(AH)
+            th 使用費金額
+        //- var scooterList = !{scooterList};
+        for scooter in scooterList
+          for swaplog in scooter.scooter_swap_logs
+            tr
+              td= scooter.plate_number
+              td= swaplog.swap_time
+              td= swaplog.vm_name
+              td= swaplog.distance
+              td= swaplog.power_consumption
+              td= swaplog.pps_price
+
+

@@ -1,0 +1,26 @@
+{
+  "keycloak": {
+      "realm": "gogoro",
+      "auth-server-url": "https://auth.gogoro.com:8443/auth",
+      "ssl-required": "all",
+      "resource": "auth",
+      "credentials": {
+        "secret": "SECRET"
+    },
+    "confidential-port": 0
+  },
+  "encrypt": {
+    "salt": "gogoro",
+    "key": "gogorogogorogogo",
+    "iv": "gogorogogorogogo"
+  },
+  "redis": {
+    "host": "10.6.1.54",
+    "port": 6380,
+    "db": 15,
+    "pass": "",
+    "prefix": "tkn:",
+    "disableTTL": false,
+    "ttl": 3600
+  }
+}

@@ -1,0 +1,395 @@
+swagger: '2.0'
+info:
+  description: This document defined the API of billing engine dispatcher
+  version: 1.0.0
+  title: Billing engine dispatcher
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: jimmy.ko@gogoro.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: localhost:3000
+tags:
+  - name: Bill
+    description: Every action about computing monthly bill
+    externalDocs:
+      description: Find out more
+      url: 'https://gogorops.atlassian.net/wiki/spaces/PG/overview'
+schemes:
+  - https
+  - http
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: X-API-Key
+paths:
+  /bill:
+    post:
+      tags:
+        - Bill
+      summary: Compute the monthly bill
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/bill'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                description: 0:success, other value is failed
+              job_id:
+                type: string
+                description: format:YYYY-MM-DD_${job_type}
+              message:
+                type: string
+        '400':
+          description: Invalid status value
+  /bill-job:
+    put:
+      tags:
+        - Bill
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              job_id:
+                type: string
+                description: format is YYYY-MM-DD-data_type
+              status:
+                type: integer
+                description: 1:idle, 2:in progress, 3:calculated, 4:approved, 5:issuing
+              approved_count:
+                type: integer
+              success_count:
+                type: integer
+              pending_approved_count:
+                type: integer
+              pending_approved_id_list:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                description: 0:success, other value is failed
+              message:
+                type: string
+        '400':
+          description: Invalid status value
+    delete:
+      tags:
+        - Bill
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              job_id:
+                type: string
+                description: format is YYYY-MM-DD-${job_type}
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                description: 0:success, other value is failed
+              message:
+                type: string
+        '400':
+          description: Invalid status value
+    get:
+      tags:
+        - Bill
+      summary: Get the monthly bill job
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: job_id
+          type: string
+          description: Given the billing cycle to check the calculating status, ex:YYYY-MM-10-data_type, YYYY-MM-25-data_type
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                description: 0:success, other value is failed
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/jobList'
+        '400':
+          description: Invalid status value
+  /bill/error:
+    get:
+      tags:
+        - Bill
+      summary: Get the monthly bill error list
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: default_issue_time
+          type: integer
+          description: bill issuing unix timestamp
+        - in: query
+          name: offset
+          type: integer
+          description: default is 0 and minimum is 0, the starting index
+        - in: query
+          name: limit
+          type: integer
+          description: default is 200. Response the number of the errors
+        - in: query
+          name: job_type
+          type: integer
+          description: 1:calculate whole bill data, 2:Re-calculate, 3:Re-calculate error bills which generate from calculating whole bill data, 4:Re-calculate the error bill which generate by re-calculating
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                description: 0:success, other value is failed
+              total_count:
+                type: integer
+                format: int32
+                description: minimum is 0, show number of the error data
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/errorList'
+        '400':
+          description: Invalid status value
+definitions:
+  bill:
+    required:
+      - data_type
+      - cycle_end_day
+      - billing_cycle_start
+      - job_type
+      - default_issue_time
+      - billing_cycle_end
+      - payment_due_date
+      - bill_issue_date
+    type: object
+    properties:
+      cycle_end_day:
+        type: integer
+        description: The billing cycle
+      job_type:
+        type: integer
+        description: 1:calculate whole bill data, 2:Re-calculate, 3:Re-calculate error bills which generate from calculating whole bill data, 4:Re-calculate the error bill which generate by re-calculating, 5 transfer
+      billing_period_start:
+        type: integer
+        description: Billing start timestamp
+      billing_period_end:
+        type: integer
+        description: Billing end timestamp
+      billing_cycle_start:
+        type: integer
+        description: billing cycle start time
+      billing_cycle_end:
+        type: integer
+        description: billing cycle end time
+      payment_due_date:
+        type: integer
+        description: Payment duedate timestamp
+      default_issue_time:
+        type: integer
+        description: The default billing issue timestamp
+      bill_issue_date:
+        type: integer
+        description: Send bill timestamp
+      auto_payment_date:
+        type: integer
+        description: auto payment charging timestamp
+      ach_upload_date:
+        type: integer
+        description: When to upload the ach charging data to bank
+      output_type:
+        type: number
+        description: 0:output Json, 1:not output, 2:output CSV
+      test:
+        type: integer
+        description: 0:normal mode, the bill data will add to data platform 1:test mode, didn't add bill data to data platform
+      data_type:
+        type: integer
+        description: 1:whole data, 2:scooter vin, 3:scooter id, 4:scooter plate, 5:gogoro user id, 6:gogoro user email, 7:es-contract id, 8:Not calculate yet
+      apply_now:
+        type: integer
+        description: 1:When job_type is Re-calculate, the program will not check whether the redis has job, 0:Otherwise
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/items'
+  items:
+    required:
+      - id
+    type: object
+    properties:
+      id:
+        type: string
+        description: it will be hash id, email, scooter plate or scooter vins, based on data_type
+      penalty:
+        type: integer
+        description: If the apply_now is 1, this parameter could be set and it is greater than or equal to 0. Otherwise, it is invalid
+      bill_status:
+        type: integer
+        description: if the job type is transfer, this parameter could be set 4(issued). Otherwise, it is invalid
+  errorList:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 999:Get es-contract failed
+          1000:Send request to billing-engine failed,
+          1001:Get es-contract promotion error,
+          1002:Get es-contract addon error
+          1003:Get bill to user error
+          1004:Get scooter failed
+          1005:Get es-contract scooter error
+          1007:Get gogoro account email failed
+          1008:Get keycloak token failed
+          1009:Get balance failed
+          1010:Get plan histories failed
+          1011:There is no plan in this billing cycle
+          1012:Add Bill failed
+          1015:Invalid time range
+      job_type:
+        type: integer
+        format: int32
+        description: 1:whole data, 2:Re-calculate
+      default_issue_time:
+        type: integer
+        description: default billing issue time
+      billing_period_start:
+        type: integer
+        description: Billing start timestamp
+      billing_period_end:
+        type: integer
+        description: Billing end timestamp
+      billing_cycle_start:
+        type: integer
+        description: billing cycle start time
+      billing_cycle_end:
+        type: integer
+        description: billing cycle end time
+      payment_due_date:
+        type: integer
+        description: Payment duedate timestamp, represent YYYY-MM-DD 23:59:59
+      bill_issue_date:
+        type: integer
+        description: Send bill timestamp, represent YYYY-MM-DD 00:00:00
+      auto_payment_date:
+        type: integer
+        description: auto payment charging timestamp
+      ach_upload_date:
+        type: integer
+        description: When to upload the ach charging data to bank
+      cycle_end_day:
+        type: integer
+        description: 31 or 15
+      id:
+        type: string
+        description: the definition of the id by data type
+  jobList:
+    type: object
+    properties:
+      job_id:
+        type: string
+        description: format:YYYY-MM-DD_${job_type}
+      data_type:
+        type: integer
+        format: int32
+        description: 1:whole data, 2:scooter vin, 3:scooter id, 4:scooter plate, 5:gogoro user id, 6:gogoro user email, 7:es-contract id,8:Not calculate yet
+      billing_period_start:
+        type: integer
+        description: Billing start timestamp
+      billing_period_end:
+        type: integer
+        description: Billing end timestamp
+      billing_cycle_start:
+        type: integer
+        description: billing cycle start time
+      billing_cycle_end:
+        type: integer
+        description: billing cycle end time
+      payment_due_date:
+        type: integer
+        description: Payment duedate timestamp, represent YYYY-MM-DD 23:59:59
+      bill_issue_date:
+        type: integer
+        description: Send bill timestamp, represent YYYY-MM-DD 00:00:00
+      auto_payment_date:
+        type: integer
+        description: auto payment charging timestamp
+      ach_upload_date:
+        type: integer
+        description: When to upload the ach charging data to bank
+      status:
+        type: integer
+        description: 1:idle, 2:in progress, 3:calculated, 4:approved, 5:issuing
+      success_count:
+        type: integer
+        description: the number of bills add in data platform successfully
+      failed_count:
+        type: integer
+        description: the number of bills didn't add in data platform
+      approved_count:
+        type: integer
+        description: the number of bills have already approved
+      total_count:
+        type: integer
+        description: the number of bills need to calculate
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
