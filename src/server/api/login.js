@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import Hashids from 'hashids';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
-import mysqlQuery from '../mysql';
+import mysqlQuery from '../lib/mysql';
 import logger from '../../logger';
 
 const { JWT_ALG, TOKEN_EXPIRED, PRIVATE_KEY_PATH } = process.env;

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import moment from 'moment-timezone';
 import logger from '../../logger';
-import mysqlQuery from '../mysql';
+import mysqlQuery from '../lib/mysql';
 
 const { SALT = 10 } = process.env;
 

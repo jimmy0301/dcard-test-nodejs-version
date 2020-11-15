@@ -1,4 +1,4 @@
-import logger from '../../logger';
+import logger from '../../../logger';
 
 const mysqlQuery = (sqlStr, value, mysqlClient) => {
   return new Promise((resolve, reject) => {
